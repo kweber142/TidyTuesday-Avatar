@@ -3,7 +3,6 @@
 library(tidyverse)
 library(readr)
 library(tvthemes)
-library(ggimage)
 library(knitr)
 library(tidytext)
 avatar <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-11/avatar.csv')
@@ -13,7 +12,8 @@ avatar$character <- str_replace_all(avatar$character, "King Bumi", "Bumi")
 avatar$character <- str_replace_all(avatar$character, "Avatar Roku", "Roku")
 avatar$character <- str_replace_all(avatar$character, "Aang:", "Aang")
 
-# Cleaning up and organizing the data to see how much each character was mentioned
+# Cleaning up and organizing the data in a table
+# Analyzing how many times each of 7 main characters were mentioned
 
 a2 <- avatar %>%
   filter(!is.na(character_words)) %>%
@@ -22,12 +22,12 @@ a2 <- avatar %>%
   filter(word %in% c("aang", "katara", "sokka", "iroh", "zuko", "toph", "azula", "uncle")) %>%
   mutate(word = str_to_title(word)) %>%
   pivot_wider(names_from = word, values_from=n) %>% 
-  mutate(`Uncle Iroh`= Iroh+Uncle) %>% 
+  mutate(`Uncle Iroh`= Iroh+Uncle) %>%  # Zuko often refers to Iroh as "Uncle", so I decided to combine "uncle" and "iroh" for "Uncle Iroh"
   select(-c(Uncle, Iroh)) %>% 
   pivot_longer(cols = Aang:`Uncle Iroh`, names_to = "Character", values_to = "Instances") %>%
   arrange(desc(Instances))
 
-# Making a graph to show my results
+# Creating an Avatar-themed bar graph to show the results
 
 ggplot(a2, aes(fct_reorder(Character, Instances), Instances, fill = Character)) +
   geom_col() +
